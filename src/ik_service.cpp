@@ -2,10 +2,8 @@
 #include "ik_service/PoseIK.h"
 #include "ur_kinematics/ur_kin.h"
 
-
-
-bool pose_ik(ik_service::PoseIK::Request  &req, ik_service::PoseIK::Response &res)
-{
+bool pose_ik(ik_service::PoseIK::Request  &req, ik_service::PoseIK::Response &res) {
+    ROS_INFO("ik_service request received");
     double T[4][4] = {
         {  0.0, -1.0,  0.0,  req.part_pose.position.x},
         {  0.0,  0.0,  1.0,  req.part_pose.position.y},
@@ -20,17 +18,17 @@ bool pose_ik(ik_service::PoseIK::Request  &req, ik_service::PoseIK::Response &re
             res.joint_solutions[i].joint_angles[j] = q_sols[i][j];
         }
     }
+    ROS_INFO("ik_service found %i solutions", num_sol);
     res.num_sols = num_sol;
     return true;
 }
 
-int main(int argc, char **argv)
-{
-  ros::init(argc, argv, "ik_service");
-  ros::NodeHandle n;
+int main(int argc, char **argv) {
+    ros::init(argc, argv, "ik_service");
+    ros::NodeHandle n;
+    ros::ServiceServer service = n.advertiseService("pose_ik", pose_ik);
+    ROS_INFO("started IK service!");
+    ros::spin();
 
-  ros::ServiceServer service = n.advertiseService("pose_ik", pose_ik);
-  ros::spin();
-
-  return 0;
+    return 0;
 }
